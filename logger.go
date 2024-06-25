@@ -33,44 +33,48 @@ func NewCustomLogger(hdl slog.Handler) *CustomLogger {
 }
 
 // Log 通用记录日志
-func (cl *CustomLogger) Log(ctx *gin.Context, msg string, level slog.Level, attrs []slog.Attr) {
+func (cl *CustomLogger) Log(ctx *gin.Context, msg string, level slog.Level, subType string, attrs []slog.Attr) {
     appendAttrs := cl.attachAttributes(ctx)
     attrs = append(attrs, appendAttrs...)
     var anyAttrs []any
     for _, attr := range attrs {
         anyAttrs = append(anyAttrs, attr)
     }
+
+    if subType != "" {
+        anyAttrs = append(anyAttrs, slog.String("sub_type", subType))
+    }
     cl.Logger.Log(context.Background(), level, msg, anyAttrs...)
 }
 
 // Trace
-func (cl *CustomLogger) Trace(ctx *gin.Context, msg string, attrs []slog.Attr) {
-    cl.Log(ctx, msg, LevelTrace, attrs)
+func (cl *CustomLogger) Trace(ctx *gin.Context, msg string, subType string, attrs []slog.Attr) {
+    cl.Log(ctx, msg, LevelTrace, subType, attrs)
 }
 
 // Info
-func (cl *CustomLogger) Info(ctx *gin.Context, msg string, attrs []slog.Attr) {
-    cl.Log(ctx, msg, slog.LevelInfo, attrs)
+func (cl *CustomLogger) Info(ctx *gin.Context, msg string, subType string, attrs []slog.Attr) {
+    cl.Log(ctx, msg, slog.LevelInfo, subType, attrs)
 }
 
 // Debug
-func (cl *CustomLogger) Debug(ctx *gin.Context, msg string, attrs []slog.Attr) {
-    cl.Log(ctx, msg, slog.LevelDebug, attrs)
+func (cl *CustomLogger) Debug(ctx *gin.Context, msg string, subType string, attrs []slog.Attr) {
+    cl.Log(ctx, msg, slog.LevelDebug, subType, attrs)
 }
 
 // Warn
-func (cl *CustomLogger) Warn(ctx *gin.Context, msg string, attrs []slog.Attr) {
-    cl.Log(ctx, msg, slog.LevelWarn, attrs)
+func (cl *CustomLogger) Warn(ctx *gin.Context, msg string, subType string, attrs []slog.Attr) {
+    cl.Log(ctx, msg, slog.LevelWarn, subType, attrs)
 }
 
 // Error
-func (cl *CustomLogger) Error(ctx *gin.Context, msg string, attrs []slog.Attr) {
-    cl.Log(ctx, msg, slog.LevelError, attrs)
+func (cl *CustomLogger) Error(ctx *gin.Context, msg string, subType string, attrs []slog.Attr) {
+    cl.Log(ctx, msg, slog.LevelError, subType, attrs)
 }
 
 // Fatal
-func (cl *CustomLogger) Fatal(ctx *gin.Context, msg string, attrs []slog.Attr) {
-    cl.Log(ctx, msg, LevelFatal, attrs)
+func (cl *CustomLogger) Fatal(ctx *gin.Context, msg string, subType string, attrs []slog.Attr) {
+    cl.Log(ctx, msg, LevelFatal, subType, attrs)
 }
 
 // attachAttributes 添加属性
@@ -97,12 +101,12 @@ func getGinContextAttributes(ctx *gin.Context) []slog.Attr {
     attrs := []slog.Attr{
         {Key: "method", Value: slog.StringValue(ctx.Request.Method)},
         {Key: "host", Value: slog.StringValue(ctx.Request.Host)},
-        {Key: "userAgent", Value: slog.StringValue(ctx.Request.UserAgent())},
-        {Key: "clientIP", Value: slog.StringValue(ctx.ClientIP())},
-        {Key: "querystring", Value: slog.StringValue(ctx.Request.URL.RawQuery)},
+        {Key: "UA", Value: slog.StringValue(ctx.Request.UserAgent())},
+        {Key: "client_ip", Value: slog.StringValue(ctx.ClientIP())},
+        {Key: "query", Value: slog.StringValue(ctx.Request.URL.RawQuery)},
         {Key: "url", Value: slog.StringValue(ctx.Request.URL.Path)},
         {Key: "env", Value: slog.StringValue(ctx.Request.Header.Get("env"))},
-        {Key: "requestID", Value: slog.StringValue(ctx.Request.Header.Get("X-Request-ID"))},
+        {Key: "request_id", Value: slog.StringValue(ctx.Request.Header.Get("X-Request-ID"))},
     }
     return attrs
 }

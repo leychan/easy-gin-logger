@@ -89,7 +89,7 @@ func TestCustomLogger_Log(t *testing.T) {
 			cl := &CustomLogger{
 				Logger: tt.fields.Logger,
 			}
-			cl.Log(tt.args.ctx, tt.args.msg, tt.args.level, tt.args.attrs)
+			cl.Log(tt.args.ctx, tt.args.msg, tt.args.level, "hello_test", tt.args.attrs)
 			wg.Done()
 		})
 	}
